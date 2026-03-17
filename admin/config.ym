@@ -1,0 +1,20 @@
+backend:
+  name: github
+  repo: eulermora27/Portafolio 
+  branch: main
+
+media_folder: "uploads" # Donde se guardarán tus fotos
+public_folder: "/uploads"
+
+collections:
+  - name: "config"
+    label: "Configuración de Fotos"
+    files:
+      - label: "Lista de Fotografías"
+        name: "photos"
+        file: "config.json"
+        fields:
+          - {label: "Fotos", name: "photos", widget: "list", fields: [
+              {label: "Título", name: "title", widget: "string"},
+              {label: "Imagen", name: "image", widget: "image"}
+            ]}
