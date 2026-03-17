@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: eulermora27/Portafolio 
+  repo: eulermora27-debug/Portafolio 
   branch: main
 
 media_folder: "uploads" # Donde se guardarán tus fotos
