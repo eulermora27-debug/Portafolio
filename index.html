@@ -3,22 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portafolio Fotográfico</title>
+    <title>Portafolio | [TU NOMBRE AQUÍ]</title>
+    
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #fff; color: #111; margin: 0; padding: 0; }
-        header { padding: 80px 20px; text-align: center; }
-        h1 { font-weight: 200; letter-spacing: 4px; text-transform: uppercase; font-size: 1.2rem; }
-        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 20px; padding: 20px; max-width: 1400px; margin: auto; }
-        .photo-item { margin-bottom: 40px; }
-        img { width: 100%; height: auto; transition: 0.5s; }
-        .info { padding: 15px 0; font-size: 0.8rem; letter-spacing: 1px; color: #666; text-transform: uppercase; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #fff; color: #111; margin: 0; padding: 0; line-height: 1.6; }
+        header { padding: 100px 20px 60px 20px; text-align: center; }
+        
+        /* Estilo para tu nombre principal */
+        h1 { font-weight: 200; letter-spacing: 5px; text-transform: uppercase; font-size: 1.5rem; margin-bottom: 10px; }
+        
+        /* Estilo para tu correo de contacto */
+        .contact-link { font-size: 0.85rem; letter-spacing: 1px; color: #888; text-decoration: none; border-bottom: 1px solid transparent; transition: 0.3s; }
+        .contact-link:hover { color: #111; border-bottom: 1px solid #111; }
+
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 30px; padding: 20px; max-width: 1400px; margin: auto; }
+        .photo-item { margin-bottom: 50px; }
+        img { width: 100%; height: auto; display: block; }
+        .info { padding: 20px 0; font-size: 0.75rem; letter-spacing: 2px; color: #999; text-transform: uppercase; }
     </style>
 </head>
 <body>
     <header>
-        <h1>Mi Portafolio Profesional</h1>
+        <h1>[TU NOMBRE COMPLETO]</h1>
+        
+        <div>
+            <a href="mailto:tu-correo@ejemplo.com" class="contact-link">tu-correo@ejemplo.com</a>
+        </div>
     </header>
+
     <main id="gallery" class="gallery"></main>
 
     <script>
@@ -42,14 +55,14 @@
                 if (data.photos) {
                     data.photos.forEach(photo => {
                         gallery.innerHTML += `
-                            <div class="photo-item">
+                            <article class="photo-item">
                                 <img src="${photo.image}" alt="${photo.title}">
                                 <div class="info">${photo.title}</div>
-                            </div>`;
+                            </article>`;
                     });
                 }
             })
-            .catch(() => console.log("Esperando primera carga de fotos..."));
+            .catch(() => console.log("Carga fotos desde el panel /admin para verlas aquí."));
     </script>
 </body>
 </html>
