@@ -3,26 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portafolio Fotográfico | Euler SM</title>
+    <title>Portafolio fotográfico by Euler Solarte M.</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-database-compat.js"></script>
+    
     <style>
         /* Estética Minimalista y Sobria */
-        body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: #ffffff; color: #111; margin: 0; padding: 0; line-height: 1.6; }
+        body { font-family: 'Inter', sans-serif; background: #ffffff; color: #111; margin: 0; padding: 0; line-height: 1.6; }
         
-        /* CABECERA: Nombre y Título */
-        header { padding: 120px 20px 80px 20px; text-align: center; }
-        h1 { font-weight: 200; letter-spacing: 6px; text-transform: uppercase; font-size: 1.6rem; margin: 0; }
-        .site-title { font-size: 0.7rem; letter-spacing: 3px; color: #aaa; text-transform: uppercase; margin-top: 10px; }
+        /* CABECERA: Título solicitado */
+        header { padding: 120px 20px 60px 20px; text-align: center; border-bottom: 1px solid #f9f9f9; }
+        h1 { font-weight: 200; letter-spacing: 5px; text-transform: uppercase; font-size: 1.6rem; margin: 0; }
 
-        /* GALERÍA */
-        .gallery { max-width: 1100px; margin: auto; padding: 20px; }
-        .photo-item { margin-bottom: 120px; text-align: center; }
-        img { width: 100%; height: auto; display: block; margin-bottom: 30px; box-shadow: 0 15px 50px rgba(0,0,0,0.05); border-radius: 2px; }
-        .photo-info { font-size: 0.7rem; letter-spacing: 3px; color: #ccc; text-transform: uppercase; margin-bottom: 20px; }
+        /* GALERÍA EN CUADRÍCULA (Grid - No imágenes grandes) */
+        .gallery-container { max-width: 1200px; margin: auto; padding: 40px 20px; }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Cuadrícula adaptiva */
+            gap: 30px;
+        }
 
-        /* SECCIÓN DE INTERACCIÓN */
-        .interaction-container { max-width: 800px; margin: 40px auto; padding: 20px; border-top: 1px solid #f0f0f0; }
+        /* Tarjeta de Fotografía (Photo-card) */
+        .photo-card { background: #fff; text-align: left; }
+        .photo-card img {
+            width: 100%;
+            height: 300px; /* Tamaño controlado */
+            object-fit: cover; /* Recorta la foto elegantemente sin deformarla */
+            display: block;
+            border-radius: 2px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+        }
 
-        /* PIE DE PÁGINA: Autor y Contacto */
+        /* Información de la foto (Título + Interacción) */
+        .photo-card-info { padding: 20px 0; display: flex; justify-content: space-between; align-items: center; }
+        .photo-title { font-size: 0.75rem; letter-spacing: 2px; color: #ccc; text-transform: uppercase; margin: 0; flex: 1; }
+
+        /* Botón de Like Individual */
+        .like-container { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .like-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0; color: #ddd; transition: color 0.2s; }
+        .like-btn:hover { color: #555; }
+        .like-btn.liked { color: #f44336; } /* Color rojo al dar like */
+
+        /* PIE DE PÁGINA (Footer) */
         footer { padding: 80px 20px; text-align: center; background: #fafafa; border-top: 1px solid #f0f0f0; margin-top: 100px; }
         .author-name { font-weight: 400; font-size: 0.9rem; letter-spacing: 1px; margin-bottom: 5px; }
         .author-email { font-size: 0.8rem; color: #888; text-decoration: none; transition: 0.3s; }
@@ -31,61 +56,113 @@
         @media (max-width: 768px) {
             header { padding: 80px 20px; }
             h1 { font-size: 1.2rem; }
+            .gallery { grid-template-columns: 1fr; } /* Una columna en móvil */
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Euler SM</h1>
-        <div class="site-title">Trabajos Fotográficos</div>
+        <h1>Portafolio fotográfico by Euler Solarte M.</h1>
     </header>
 
-    <main id="gallery" class="gallery">
-        </main>
-
-    <section class="interaction-container">
-        <h2 style="font-size: 0.7rem; letter-spacing: 2px; color: #ccc; text-transform: uppercase; text-align: center; margin-bottom: 30px;">Interacción</h2>
-        <div class="giscus"></div>
-    </section>
+    <main id="gallery-container" class="gallery-container">
+        <div id="gallery" class="gallery">
+            </div>
+    </main>
 
     <footer>
-        <div class="author-name">Autor: Euler SM</div>
+        <div class="author-name">Euler Solarte M.</div>
         <a href="mailto:eulermora27@gmail.com" class="author-email">eulermora27@gmail.com</a>
     </footer>
 
     <script>
+        // ==========================================
+        // CONFIGURACIÓN DE FIREBASE (¡PASO 1 ABAJO!)
+        // ==========================================
+        const firebaseConfig = {
+          // *** COPIA Y PEGA TU CONFIGURACIÓN AQUÍ ***
+        };
+        // ==========================================
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // 1. Cargar las fotos que ya tienes cargadas
         fetch('./config.json')
             .then(res => res.ok ? res.json() : { photos: [] })
             .then(data => {
                 const gallery = document.getElementById('gallery');
                 if (data.photos && data.photos.length > 0) {
-                    data.photos.forEach(photo => {
-                        gallery.innerHTML += `
-                            <article class="photo-item">
-                                <img src="${photo.image}" alt="${photo.title}" loading="lazy">
-                                <div class="photo-title">${photo.title}</div>
-                            </article>`;
+                    data.photos.forEach((photo, index) => {
+                        renderPhotoCard(gallery, photo, index);
                     });
+                } else {
+                    gallery.innerHTML = '<p style="text-align:center; color:#ccc; margin-top:50px;">Aún no hay fotos en la galería.</p>';
                 }
             });
-    </script>
 
-    <script src="https://giscus.app/client.js"
-        data-repo="eulermora27-debug/Portafolio"
-        data-repo-id="PON_AQUÍ_TU_REPO_ID" 
-        data-category="Announcements"
-        data-category-id="PON_AQUÍ_TU_CATEGORY_ID"
-        data-mapping="pathname"
-        data-strict="0"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="bottom"
-        data-theme="light"
-        data-lang="es"
-        crossorigin="anonymous"
-        async>
-    </script>
+        // 2. Renderizar cada tarjeta de foto individual
+        function renderPhotoCard(container, photo, index) {
+            // Creamos una ID única para esta foto (ej: foto-sunset)
+            const photoId = 'photo-' + photo.title.replace(/\s+/g, '-').toLowerCase() || 'photo-' + index;
 
+            // HTML de la tarjeta
+            const cardHTML = `
+                <article class="photo-card">
+                    <img src="${photo.image}" alt="${photo.title}" loading="lazy">
+                    <div class="photo-card-info">
+                        <h2 class="photo-title">${photo.title}</h2>
+                        <div class="like-container">
+                            <span id="${photoId}-count" class="like-count">0</span> Likes
+                            <button id="${photoId}-btn" class="like-btn" onclick="addLike('${photoId}')">🤍</button>
+                        </div>
+                    </div>
+                </article>
+            `;
+            container.innerHTML += cardHTML;
+
+            // 3. Conectar los likes en tiempo real para esta foto
+            const photoLikeRef = database.ref('likes/' + photoId);
+            photoLikeRef.on('value', (snapshot) => {
+                const count = snapshot.val() || 0;
+                document.getElementById(photoId + '-count').innerText = count;
+                updateLikeButtonState(photoId);
+            });
+        }
+
+        // 4. Función para dar Like y guardarlo en la Base de Datos
+        function addLike(photoId) {
+            const photoLikeRef = database.ref('likes/' + photoId);
+            
+            // Simulación rápida en UI
+            const btn = document.getElementById(photoId + '-btn');
+            const hasLiked = localStorage.getItem('liked_' + photoId);
+
+            if (!hasLiked) {
+                // Incrementamos en Firebase (+1 real y permanente)
+                photoLikeRef.transaction((currentCount) => {
+                    return (currentCount || 0) + 1;
+                });
+                // Guardamos en local para que no den like dos veces
+                localStorage.setItem('liked_' + photoId, 'true');
+                btn.innerText = '❤️'; // Corazón lleno
+                btn.classList.add('liked');
+            } else {
+                alert("Ya le diste Like a esta foto, Euler SM. ¡Gracias!");
+            }
+        }
+
+        // 5. Verificar estado del botón (si ya dieron like)
+        function updateLikeButtonState(photoId) {
+            const btn = document.getElementById(photoId + '-btn');
+            const hasLiked = localStorage.getItem('liked_' + photoId);
+            if (hasLiked) {
+                btn.innerText = '❤️'; // Corazón lleno
+                btn.classList.add('liked');
+            }
+        }
+    </script>
 </body>
 </html>
