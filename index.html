@@ -7,56 +7,47 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500&display=swap" rel="stylesheet">
     
-    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     
     <style>
-        /* Estética Minimalista y Sobria */
         body { font-family: 'Inter', sans-serif; background: #ffffff; color: #111; margin: 0; padding: 0; line-height: 1.6; }
         
-        /* CABECERA: Título solicitado */
-        header { padding: 120px 20px 60px 20px; text-align: center; border-bottom: 1px solid #f9f9f9; }
-        h1 { font-weight: 200; letter-spacing: 5px; text-transform: uppercase; font-size: 1.6rem; margin: 0; }
+        header { padding: 100px 20px 60px 20px; text-align: center; border-bottom: 1px solid #f9f9f9; }
+        h1 { font-weight: 200; letter-spacing: 4px; text-transform: uppercase; font-size: 1.5rem; margin: 0; }
 
-        /* GALERÍA EN CUADRÍCULA (Grid - No imágenes grandes) */
+        /* Cuadrícula organizada (Fotos más pequeñas) */
         .gallery-container { max-width: 1200px; margin: auto; padding: 40px 20px; }
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Cuadrícula adaptiva */
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
         }
 
-        /* Tarjeta de Fotografía (Photo-card) */
-        .photo-card { background: #fff; text-align: left; }
+        .photo-card { background: #fff; display: flex; flex-direction: column; }
         .photo-card img {
             width: 100%;
-            height: 300px; /* Tamaño controlado */
-            object-fit: cover; /* Recorta la foto elegantemente sin deformarla */
-            display: block;
+            height: 350px; /* Tamaño controlado */
+            object-fit: cover;
             border-radius: 2px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
-        /* Información de la foto (Título + Interacción) */
-        .photo-card-info { padding: 20px 0; display: flex; justify-content: space-between; align-items: center; }
-        .photo-title { font-size: 0.75rem; letter-spacing: 2px; color: #ccc; text-transform: uppercase; margin: 0; flex: 1; }
+        .photo-card-info { padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+        .photo-title { font-size: 0.7rem; letter-spacing: 2px; color: #aaa; text-transform: uppercase; margin: 0; }
 
-        /* Botón de Like Individual */
-        .like-container { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        .like-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0; color: #ddd; transition: color 0.2s; }
-        .like-btn:hover { color: #555; }
-        .like-btn.liked { color: #f44336; } /* Color rojo al dar like */
+        .like-container { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: #888; }
+        .like-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0; color: #eee; transition: 0.2s; }
+        .like-btn.liked { color: #f44336; }
 
-        /* PIE DE PÁGINA (Footer) */
         footer { padding: 80px 20px; text-align: center; background: #fafafa; border-top: 1px solid #f0f0f0; margin-top: 100px; }
         .author-name { font-weight: 400; font-size: 0.9rem; letter-spacing: 1px; margin-bottom: 5px; }
-        .author-email { font-size: 0.8rem; color: #888; text-decoration: none; transition: 0.3s; }
+        .author-email { font-size: 0.8rem; color: #888; text-decoration: none; border-bottom: 1px solid transparent; }
         .author-email:hover { color: #000; border-bottom: 1px solid #000; }
 
-        @media (max-width: 768px) {
-            header { padding: 80px 20px; }
-            h1 { font-size: 1.2rem; }
-            .gallery { grid-template-columns: 1fr; } /* Una columna en móvil */
+        @media (max-width: 600px) {
+            .gallery { grid-template-columns: 1fr; }
+            header { padding: 60px 20px; }
         }
     </style>
 </head>
@@ -66,7 +57,7 @@
         <h1>Portafolio fotográfico by Euler Solarte M.</h1>
     </header>
 
-    <main id="gallery-container" class="gallery-container">
+    <main class="gallery-container">
         <div id="gallery" class="gallery">
             </div>
     </main>
@@ -77,90 +68,66 @@
     </footer>
 
     <script>
-        // ==========================================
-        // CONFIGURACIÓN DE FIREBASE (¡PASO 1 ABAJO!)
-        // ==========================================
-        const firebaseConfig = {
-          // *** COPIA Y PEGA TU CONFIGURACIÓN AQUÍ ***
-        };
-        // ==========================================
-
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        // 1. Cargar las fotos que ya tienes cargadas
+        // CARGA DE FOTOS (Independiente de Firebase)
         fetch('./config.json')
             .then(res => res.ok ? res.json() : { photos: [] })
             .then(data => {
                 const gallery = document.getElementById('gallery');
                 if (data.photos && data.photos.length > 0) {
                     data.photos.forEach((photo, index) => {
-                        renderPhotoCard(gallery, photo, index);
+                        const photoId = 'photo-' + (photo.title || 'img').replace(/\s+/g, '-').toLowerCase() + '-' + index;
+                        gallery.innerHTML += `
+                            <article class="photo-item">
+                                <img src="${photo.image}" alt="${photo.title}" loading="lazy">
+                                <div class="photo-card-info">
+                                    <h2 class="photo-title">${photo.title}</h2>
+                                    <div class="like-container">
+                                        <span id="${photoId}-count">0</span>
+                                        <button id="${photoId}-btn" class="like-btn" onclick="addLike('${photoId}')">❤</button>
+                                    </div>
+                                </div>
+                            </article>`;
+                        
+                        // Si ya configuraste Firebase, esto activará los contadores
+                        if (typeof database !== 'undefined') {
+                            conectarLike(photoId);
+                        }
                     });
-                } else {
-                    gallery.innerHTML = '<p style="text-align:center; color:#ccc; margin-top:50px;">Aún no hay fotos en la galería.</p>';
                 }
             });
 
-        // 2. Renderizar cada tarjeta de foto individual
-        function renderPhotoCard(container, photo, index) {
-            // Creamos una ID única para esta foto (ej: foto-sunset)
-            const photoId = 'photo-' + photo.title.replace(/\s+/g, '-').toLowerCase() || 'photo-' + index;
+        // CONFIGURACIÓN DE FIREBASE (Opcional para que funcionen los likes)
+        const firebaseConfig = {
+            // PEGA AQUÍ TUS DATOS DE FIREBASE CUANDO LOS TENGAS
+        };
 
-            // HTML de la tarjeta
-            const cardHTML = `
-                <article class="photo-card">
-                    <img src="${photo.image}" alt="${photo.title}" loading="lazy">
-                    <div class="photo-card-info">
-                        <h2 class="photo-title">${photo.title}</h2>
-                        <div class="like-container">
-                            <span id="${photoId}-count" class="like-count">0</span> Likes
-                            <button id="${photoId}-btn" class="like-btn" onclick="addLike('${photoId}')">🤍</button>
-                        </div>
-                    </div>
-                </article>
-            `;
-            container.innerHTML += cardHTML;
+        let database;
+        try {
+            if (firebaseConfig.apiKey) {
+                firebase.initializeApp(firebaseConfig);
+                database = firebase.database();
+            }
+        } catch (e) { console.log("Firebase no configurado aún."); }
 
-            // 3. Conectar los likes en tiempo real para esta foto
-            const photoLikeRef = database.ref('likes/' + photoId);
-            photoLikeRef.on('value', (snapshot) => {
+        function conectarLike(photoId) {
+            database.ref('likes/' + photoId).on('value', (snapshot) => {
                 const count = snapshot.val() || 0;
                 document.getElementById(photoId + '-count').innerText = count;
-                updateLikeButtonState(photoId);
+                if (localStorage.getItem('liked_' + photoId)) {
+                    document.getElementById(photoId + '-btn').classList.add('liked');
+                }
             });
         }
 
-        // 4. Función para dar Like y guardarlo en la Base de Datos
         function addLike(photoId) {
-            const photoLikeRef = database.ref('likes/' + photoId);
-            
-            // Simulación rápida en UI
-            const btn = document.getElementById(photoId + '-btn');
-            const hasLiked = localStorage.getItem('liked_' + photoId);
-
-            if (!hasLiked) {
-                // Incrementamos en Firebase (+1 real y permanente)
-                photoLikeRef.transaction((currentCount) => {
-                    return (currentCount || 0) + 1;
-                });
-                // Guardamos en local para que no den like dos veces
-                localStorage.setItem('liked_' + photoId, 'true');
-                btn.innerText = '❤️'; // Corazón lleno
-                btn.classList.add('liked');
-            } else {
-                alert("Ya le diste Like a esta foto, Euler SM. ¡Gracias!");
+            if (!database) {
+                alert("El sistema de likes requiere configurar Firebase.");
+                return;
             }
-        }
-
-        // 5. Verificar estado del botón (si ya dieron like)
-        function updateLikeButtonState(photoId) {
-            const btn = document.getElementById(photoId + '-btn');
-            const hasLiked = localStorage.getItem('liked_' + photoId);
-            if (hasLiked) {
-                btn.innerText = '❤️'; // Corazón lleno
-                btn.classList.add('liked');
+            if (!localStorage.getItem('liked_' + photoId)) {
+                database.ref('likes/' + photoId).transaction(c => (c || 0) + 1);
+                localStorage.setItem('liked_' + photoId, 'true');
+                document.getElementById(photoId + '-btn').classList.add('liked');
             }
         }
     </script>
