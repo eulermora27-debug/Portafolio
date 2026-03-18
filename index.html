@@ -11,56 +11,55 @@
     
     <style>
         body { font-family: 'Inter', sans-serif; background: #fff; color: #111; margin: 0; padding: 0; }
-        header { padding: 60px 20px 30px; text-align: center; }
-        h1 { font-weight: 200; letter-spacing: 2px; text-transform: uppercase; font-size: 1.2rem; margin: 0; color: #333; }
+        
+        /* CABECERA: Título solicitado */
+        header { padding: 80px 20px 40px; text-align: center; border-bottom: 1px solid #f2f2f2; }
+        h1 { font-weight: 200; letter-spacing: 2px; text-transform: uppercase; font-size: 1.3rem; margin: 0; color: #000; }
 
-        /* Cuadrícula Optimizada */
-        .gallery-container { max-width: 1200px; margin: auto; padding: 20px; }
+        /* Cuadrícula (Grid) - Imágenes no gigantes */
+        .gallery-container { max-width: 1200px; margin: auto; padding: 40px 20px; }
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 40px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 50px;
             align-items: start;
         }
 
-        .photo-card { background: #fff; display: flex; flex-direction: column; }
+        .photo-card { background: #fff; overflow: hidden; display: flex; flex-direction: column; }
         
-        /* Imagen en Proporción Real */
+        /* IMAGEN: Proporción real sin cortes */
         .photo-card img {
             width: 100%;
-            height: auto;
+            height: auto; 
             display: block;
-            border-radius: 2px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         }
 
         .photo-info { padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
         .photo-title { font-size: 0.65rem; letter-spacing: 1.5px; color: #999; text-transform: uppercase; margin: 0; }
 
-        /* Estilo del Corazón solicitado */
+        /* BOTÓN DE LIKE: Siempre Negro */
         .like-btn { 
             background: none; 
             border: none; 
             cursor: pointer; 
-            font-size: 0.9rem; 
-            color: #e0e0e0; /* Gris muy claro para cuando no hay like */
+            font-size: 1rem; 
+            color: #000; 
             display: flex; 
             align-items: center; 
-            gap: 5px; 
-            transition: 0.3s; 
+            gap: 8px; 
+            transition: opacity 0.2s; 
             padding: 0; 
         }
 
-        /* COLOR SOLICITADO: Rojo Oscuro / Negro al dar like */
-        .like-btn.liked { 
-            color: #800000; /* Rojo oscuro (Granate) */
-        }
-        
-        .like-count { font-size: 0.75rem; color: #888; }
+        .like-btn:active { opacity: 0.4; }
+        .like-count { font-size: 0.8rem; color: #000; font-weight: 400; }
 
-        footer { padding: 80px 20px; text-align: center; background: #fafafa; border-top: 1px solid #f2f2f2; margin-top: 60px; font-size: 0.8rem; color: #444; }
-        .contact-link { color: #888; text-decoration: none; border-bottom: 1px solid transparent; }
-        .contact-link:hover { color: #000; border-bottom: 1px solid #000; }
+        /* PIE DE PÁGINA: Datos de autor */
+        footer { padding: 80px 20px; text-align: center; background: #fafafa; border-top: 1px solid #eee; margin-top: 60px; font-size: 0.85rem; color: #000; }
+        .contact-link { color: #666; text-decoration: none; border-bottom: 1px solid transparent; transition: 0.3s; }
+        .contact-link:hover { border-bottom: 1px solid #000; color: #000; }
 
         @media (max-width: 600px) { .gallery { grid-template-columns: 1fr; } }
     </style>
@@ -68,7 +67,7 @@
 <body>
 
     <header>
-        <h1>Portafolio fotográfico by Euler Solarte M.</h1>
+        <h1>Portafolio fotográfico - Euler Solarte M.</h1>
     </header>
 
     <main class="gallery-container">
@@ -78,57 +77,11 @@
     <footer>
         <div><strong>Euler Solarte M.</strong></div>
         <div style="margin-top:10px;">
-            Contacto: <a href="mailto:eulermora27@gmail.com" class="contact-link">eulermora27@gmail.com</a>
+            <a href="mailto:eulermora27@gmail.com" class="contact-link">eulermora27@gmail.com</a>
         </div>
     </footer>
 
     <script>
+        // Configuración de Firebase vinculada a tu proyecto
         const firebaseConfig = {
-            apiKey: "AIzaSyBlNVY7m79LpX899r4qfD08B8t1G4M738U",
-            authDomain: "portafolio-5a15c.firebaseapp.com",
-            databaseURL: "https://portafolio-5a15c-default-rtdb.firebaseio.com",
-            projectId: "portafolio-5a15c",
-            storageBucket: "portafolio-5a15c.appspot.com",
-            messagingSenderId: "367375252877",
-            appId: "1:367375252877:web:80695427863773950b6911"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        fetch('./config.json')
-            .then(res => res.ok ? res.json() : { photos: [] })
-            .then(data => {
-                const gallery = document.getElementById('gallery');
-                data.photos.forEach((photo, index) => {
-                    const id = 'id_' + (photo.title || 'img').replace(/\s+/g, '').toLowerCase() + index;
-                    
-                    const card = document.createElement('div');
-                    card.className = 'photo-card';
-                    card.innerHTML = `
-                        <img src="${photo.image}" alt="${photo.title}" loading="lazy">
-                        <div class="photo-info">
-                            <h2 class="photo-title">${photo.title}</h2>
-                            <button id="btn-${id}" class="like-btn" onclick="votar('${id}')">
-                                <span id="count-${id}" class="like-count">0</span> ❤
-                            </button>
-                        </div>
-                    `;
-                    gallery.appendChild(card);
-                    
-                    db.ref('likes/' + id).on('value', (snap) => {
-                        document.getElementById('count-' + id).innerText = snap.val() || 0;
-                        if (localStorage.getItem('liked_' + id)) document.getElementById('btn-' + id).classList.add('liked');
-                    });
-                });
-            });
-
-        function votar(id) {
-            if (localStorage.getItem('liked_' + id)) return;
-            db.ref('likes/' + id).transaction(c => (c || 0) + 1);
-            localStorage.setItem('liked_' + id, 'true');
-            document.getElementById('btn-' + id).classList.add('liked');
-        }
-    </script>
-</body>
-</html>
+            apiKey: "AIzaSyBlNVY7m79LpX899r4qfD08B8t
