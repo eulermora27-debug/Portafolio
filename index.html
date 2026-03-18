@@ -11,39 +11,56 @@
     
     <style>
         body { font-family: 'Inter', sans-serif; background: #fff; color: #111; margin: 0; padding: 0; }
-        header { padding: 80px 20px 40px; text-align: center; border-bottom: 1px solid #f2f2f2; }
-        h1 { font-weight: 200; letter-spacing: 2px; text-transform: uppercase; font-size: 1.3rem; margin: 0; }
+        header { padding: 60px 20px 30px; text-align: center; }
+        h1 { font-weight: 200; letter-spacing: 2px; text-transform: uppercase; font-size: 1.2rem; margin: 0; color: #333; }
 
-        /* Cuadrícula (Grid) */
-        .gallery-container { max-width: 1200px; margin: auto; padding: 40px 20px; }
+        /* Cuadrícula Optimizada */
+        .gallery-container { max-width: 1200px; margin: auto; padding: 20px; }
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 50px;
-            align-items: start; /* Permite alturas diferentes */
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 40px;
+            align-items: start;
         }
 
-        .photo-card { background: #fff; overflow: hidden; display: flex; flex-direction: column; }
+        .photo-card { background: #fff; display: flex; flex-direction: column; }
         
-        /* Imagen en proporción real */
+        /* Imagen en Proporción Real */
         .photo-card img {
             width: 100%;
-            height: auto; /* Mantiene el tamaño real/proporción */
+            height: auto;
             display: block;
-            border-radius: 3px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-radius: 2px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .photo-info { padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
-        .photo-title { font-size: 0.7rem; letter-spacing: 1px; color: #999; text-transform: uppercase; margin: 0; padding-right: 10px; }
+        .photo-title { font-size: 0.65rem; letter-spacing: 1.5px; color: #999; text-transform: uppercase; margin: 0; }
 
-        .like-btn { background: none; border: none; cursor: pointer; font-size: 1rem; color: #eee; display: flex; align-items: center; gap: 6px; transition: 0.2s; padding: 0; }
-        .like-btn.liked { color: #ff4757; }
-        .like-count { font-size: 0.8rem; color: #666; font-weight: 500; }
+        /* Estilo del Corazón solicitado */
+        .like-btn { 
+            background: none; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 0.9rem; 
+            color: #e0e0e0; /* Gris muy claro para cuando no hay like */
+            display: flex; 
+            align-items: center; 
+            gap: 5px; 
+            transition: 0.3s; 
+            padding: 0; 
+        }
 
-        footer { padding: 60px 20px; text-align: center; background: #fafafa; border-top: 1px solid #eee; margin-top: 50px; font-size: 0.85rem; color: #444; }
-        .contact { color: #888; text-decoration: none; border-bottom: 1px solid transparent; transition: 0.3s; }
-        .contact:hover { color: #000; border-bottom: 1px solid #000; }
+        /* COLOR SOLICITADO: Rojo Oscuro / Negro al dar like */
+        .like-btn.liked { 
+            color: #800000; /* Rojo oscuro (Granate) */
+        }
+        
+        .like-count { font-size: 0.75rem; color: #888; }
+
+        footer { padding: 80px 20px; text-align: center; background: #fafafa; border-top: 1px solid #f2f2f2; margin-top: 60px; font-size: 0.8rem; color: #444; }
+        .contact-link { color: #888; text-decoration: none; border-bottom: 1px solid transparent; }
+        .contact-link:hover { color: #000; border-bottom: 1px solid #000; }
 
         @media (max-width: 600px) { .gallery { grid-template-columns: 1fr; } }
     </style>
@@ -61,12 +78,11 @@
     <footer>
         <div><strong>Euler Solarte M.</strong></div>
         <div style="margin-top:10px;">
-            Contacto: <a href="mailto:eulermora27@gmail.com" class="contact">eulermora27@gmail.com</a>
+            Contacto: <a href="mailto:eulermora27@gmail.com" class="contact-link">eulermora27@gmail.com</a>
         </div>
     </footer>
 
     <script>
-        // Datos extraídos de tu configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBlNVY7m79LpX899r4qfD08B8t1G4M738U",
             authDomain: "portafolio-5a15c.firebaseapp.com",
