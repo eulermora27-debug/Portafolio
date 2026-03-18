@@ -5,50 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portafolio fotográfico by Euler Solarte M.</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     
     <style>
-        body { font-family: 'Inter', sans-serif; background: #ffffff; color: #111; margin: 0; padding: 0; line-height: 1.6; }
-        
-        header { padding: 100px 20px 60px 20px; text-align: center; border-bottom: 1px solid #f9f9f9; }
-        h1 { font-weight: 200; letter-spacing: 4px; text-transform: uppercase; font-size: 1.5rem; margin: 0; }
+        body { font-family: 'Inter', sans-serif; background: #fff; color: #111; margin: 0; padding: 0; }
+        header { padding: 80px 20px 40px; text-align: center; border-bottom: 1px solid #f2f2f2; }
+        h1 { font-weight: 200; letter-spacing: 2px; text-transform: uppercase; font-size: 1.3rem; margin: 0; }
 
-        /* Cuadrícula organizada (Fotos más pequeñas) */
+        /* Cuadrícula de fotos (Grid) */
         .gallery-container { max-width: 1200px; margin: auto; padding: 40px 20px; }
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 40px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
         }
 
-        .photo-card { background: #fff; display: flex; flex-direction: column; }
+        .photo-card { background: #fff; overflow: hidden; display: flex; flex-direction: column; }
         .photo-card img {
             width: 100%;
-            height: 350px; /* Tamaño controlado */
+            height: 300px; /* Tamaño controlado */
             object-fit: cover;
-            border-radius: 2px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-radius: 3px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
-        .photo-card-info { padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
-        .photo-title { font-size: 0.7rem; letter-spacing: 2px; color: #aaa; text-transform: uppercase; margin: 0; }
+        .photo-info { padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+        .photo-title { font-size: 0.7rem; letter-spacing: 1px; color: #999; text-transform: uppercase; margin: 0; }
 
-        .like-container { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: #888; }
-        .like-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0; color: #eee; transition: 0.2s; }
-        .like-btn.liked { color: #f44336; }
+        .like-btn { background: none; border: none; cursor: pointer; font-size: 1rem; color: #eee; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .like-btn.liked { color: #ff4757; }
+        .like-count { font-size: 0.8rem; color: #666; font-weight: 500; }
 
-        footer { padding: 80px 20px; text-align: center; background: #fafafa; border-top: 1px solid #f0f0f0; margin-top: 100px; }
-        .author-name { font-weight: 400; font-size: 0.9rem; letter-spacing: 1px; margin-bottom: 5px; }
-        .author-email { font-size: 0.8rem; color: #888; text-decoration: none; border-bottom: 1px solid transparent; }
-        .author-email:hover { color: #000; border-bottom: 1px solid #000; }
+        footer { padding: 60px 20px; text-align: center; background: #fafafa; border-top: 1px solid #eee; margin-top: 50px; font-size: 0.85rem; color: #444; }
+        .contact { color: #888; text-decoration: none; border-bottom: 1px solid transparent; transition: 0.3s; }
+        .contact:hover { color: #000; border-bottom: 1px solid #000; }
 
-        @media (max-width: 600px) {
-            .gallery { grid-template-columns: 1fr; }
-            header { padding: 60px 20px; }
-        }
+        @media (max-width: 600px) { .gallery { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -58,77 +52,66 @@
     </header>
 
     <main class="gallery-container">
-        <div id="gallery" class="gallery">
-            </div>
+        <div id="gallery" class="gallery"></div>
     </main>
 
     <footer>
-        <div class="author-name">Euler Solarte M.</div>
-        <a href="mailto:eulermora27@gmail.com" class="author-email">eulermora27@gmail.com</a>
+        <div><strong>Euler Solarte M.</strong></div>
+        <div style="margin-top:10px;">
+            Contacto: <a href="mailto:eulermora27@gmail.com" class="contact">eulermora27@gmail.com</a>
+        </div>
     </footer>
 
     <script>
-        // CARGA DE FOTOS (Independiente de Firebase)
+        // === TU CONFIGURACIÓN DE FIREBASE ===
+        // Búscala en: Engranaje (Configuración) -> Configuración del proyecto -> Tus Apps (Icono </>)
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "portafolio-5a15c.firebaseapp.com",
+            databaseURL: "https://portafolio-5a15c-default-rtdb.firebaseio.com",
+            projectId: "portafolio-5a15c",
+            storageBucket: "portafolio-5a15c.appspot.com",
+            messagingSenderId: "TU_ID",
+            appId: "TU_APP_ID"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         fetch('./config.json')
             .then(res => res.ok ? res.json() : { photos: [] })
             .then(data => {
                 const gallery = document.getElementById('gallery');
-                if (data.photos && data.photos.length > 0) {
-                    data.photos.forEach((photo, index) => {
-                        const photoId = 'photo-' + (photo.title || 'img').replace(/\s+/g, '-').toLowerCase() + '-' + index;
-                        gallery.innerHTML += `
-                            <article class="photo-item">
-                                <img src="${photo.image}" alt="${photo.title}" loading="lazy">
-                                <div class="photo-card-info">
-                                    <h2 class="photo-title">${photo.title}</h2>
-                                    <div class="like-container">
-                                        <span id="${photoId}-count">0</span>
-                                        <button id="${photoId}-btn" class="like-btn" onclick="addLike('${photoId}')">❤</button>
-                                    </div>
-                                </div>
-                            </article>`;
-                        
-                        // Si ya configuraste Firebase, esto activará los contadores
-                        if (typeof database !== 'undefined') {
-                            conectarLike(photoId);
-                        }
+                data.photos.forEach((photo, index) => {
+                    // Crear ID único basado en el título
+                    const id = 'id_' + (photo.title || 'img').replace(/\s+/g, '').toLowerCase() + index;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'photo-card';
+                    card.innerHTML = `
+                        <img src="${photo.image}" alt="${photo.title}" loading="lazy">
+                        <div class="photo-info">
+                            <h2 class="photo-title">${photo.title}</h2>
+                            <button id="btn-${id}" class="like-btn" onclick="votar('${id}')">
+                                <span id="count-${id}" class="like-count">0</span> ❤
+                            </button>
+                        </div>
+                    `;
+                    gallery.appendChild(card);
+                    
+                    // Escuchar likes en tiempo real
+                    db.ref('likes/' + id).on('value', (snap) => {
+                        document.getElementById('count-' + id).innerText = snap.val() || 0;
+                        if (localStorage.getItem('liked_' + id)) document.getElementById('btn-' + id).classList.add('liked');
                     });
-                }
+                });
             });
 
-        // CONFIGURACIÓN DE FIREBASE (Opcional para que funcionen los likes)
-        const firebaseConfig = {
-            // PEGA AQUÍ TUS DATOS DE FIREBASE CUANDO LOS TENGAS
-        };
-
-        let database;
-        try {
-            if (firebaseConfig.apiKey) {
-                firebase.initializeApp(firebaseConfig);
-                database = firebase.database();
-            }
-        } catch (e) { console.log("Firebase no configurado aún."); }
-
-        function conectarLike(photoId) {
-            database.ref('likes/' + photoId).on('value', (snapshot) => {
-                const count = snapshot.val() || 0;
-                document.getElementById(photoId + '-count').innerText = count;
-                if (localStorage.getItem('liked_' + photoId)) {
-                    document.getElementById(photoId + '-btn').classList.add('liked');
-                }
-            });
-        }
-
-        function addLike(photoId) {
-            if (!database) {
-                alert("El sistema de likes requiere configurar Firebase.");
-                return;
-            }
-            if (!localStorage.getItem('liked_' + photoId)) {
-                database.ref('likes/' + photoId).transaction(c => (c || 0) + 1);
-                localStorage.setItem('liked_' + photoId, 'true');
-                document.getElementById(photoId + '-btn').classList.add('liked');
-            }
+        function votar(id) {
+            if (localStorage.getItem('liked_' + id)) return;
+            db.ref('likes/' + id).transaction(c => (c || 0) + 1);
+            localStorage.setItem('liked_' + id, 'true');
+            document.getElementById('btn-' + id).classList.add('liked');
         }
     </script>
 </body>
